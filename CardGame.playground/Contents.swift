@@ -163,7 +163,15 @@ protocol CardGameDelegate {
 
 //: ## Step 14
 //: Create a class called `HighLow` that conforms to the `CardGame` protocol. It should have an initialized `Deck` as a property, as well as an optional delegate property of type `CardGameDelegate`.
-
+class HighLow: CardGame {
+    var deck: Deck = Deck()
+    var delegate: CardGameDelegate?
+    
+    func play() {
+        <#code#>
+    }
+    
+}
 
 
 
@@ -181,6 +189,16 @@ protocol CardGameDelegate {
 
 //: ## Step 17
 //: Make the `Rank` type conform to the `Comparable` protocol. Implement the `<` and `==` functions such that they compare the `rawValue` of the `lhs` and `rhs` arguments passed in. This will allow us to compare two rank values with each other and determine whether they are equal, or if not, which one is larger.
+extension Rank: Comparable {
+    static func < (lhs: Rank, rhs: Rank) -> Bool {
+        return lhs.rawValue < rhs.rawValue
+    }
+    
+    static func == (lhs: Rank, rhs: Rank) -> Bool {
+        return lhs.rawValue == rhs.rawValue
+    }
+    
+}
 
 
 
@@ -188,7 +206,43 @@ protocol CardGameDelegate {
 
 //: Step 18
 //: Make the `Card` type conform to the `Comparable` protocol. Implement the `<` and `==` methods such that they compare the ranks of the `lhs` and `rhs` arguments passed in. For the `==` method, compare **both** the rank and the suit.
+extension Card: Comparable {
+    static func < (lhs: Card, rhs: Card) -> Bool {
+        if lhs.rank < rhs.rank {
+            return true
+        } else {
+            switch lhs.suit.rawValue {
+            case "clubs":
+                if rhs.suit.rawValue == "clubs" {
+                    return false
+                } else {
+                    return true
+                }
+            case "diamonds":
+                if rhs.suit.rawValue == "clubs" || rhs.suit.rawValue == "diamonds" {
+                    return false
+                } else {
+                    return true
+                }
+            case "hearts":
+                if rhs.suit.rawValue == "spades" {
+                    return true
+                } else {
+                    return false
+                }
+            case "spades":
+                return false
+            default:
+                return false
+            }
+        }
+    }
+    
+    static func == (lhs: Card, rhs: Card) -> Bool {
+        return lhs.rank == rhs.rank && lhs.suit.rawValue == rhs.suit.rawValue
+    }
 
+}
 
 
 
