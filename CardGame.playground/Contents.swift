@@ -16,6 +16,8 @@ enum Rank: Int {
     case jack = 11
     case queen = 12
     case king = 13
+    
+//    static let allRanks = []
 }
 
 
@@ -51,8 +53,13 @@ enum Suit: String {
 //: ## Step 4
 //: Using the two enums above, create a `struct` called `Card` to model a single playing card. It should have constant properties for each constituent piece (one for suit and one for rank).
 struct Card {
-    let rank: Rank
-    let suit: Suit
+    var rank: Rank
+    var suit: Suit
+    
+    init(rank: Rank, suit: Suit) {
+        self.rank = rank
+        self.suit = suit
+    }
 }
 
 
@@ -71,7 +78,20 @@ extension Card: CustomStringConvertible {
 //: ## Step 6
 //: Create a `struct` to model a deck of cards. It should be called `Deck` and have an array of `Card` objects as a constant property. A custom `init` function should be created that initializes the array with a card of each rank and suit. You'll want to iterate over all ranks, and then over all suits (this is an example of _nested `for` loops_). See the next 2 steps before you continue with the nested loops.
 struct Deck {
-    let cards: [Card]
+    var cards: [Card] = []
+    
+    init() {
+        for singleRank in Rank.allCases {
+            for singleSuit in Suit.allCases {
+                self.cards.append(Card(rank: singleRank, suit: singleSuit))
+            }
+        }
+    }
+    
+    func drawCard() -> Card {
+        return cards[Int.random(in: 0...51)]
+    }
+    
 }
 
 
@@ -79,13 +99,17 @@ struct Deck {
 
 //: ## Step 7
 //: In the rank enum, add a static computed property that returns all the ranks in an array. Name this property `allRanks`. This is needed because you can't iterate over all cases from an enum automatically.
-
+extension Rank: CaseIterable {
+    
+}
 
 
 
 //: ## Step 8
 //: In the suit enum, add a static computed property that returns all the suits in an array. Name this property `allSuits`.
-
+extension Suit: CaseIterable {
+    
+}
 
 
 
@@ -118,6 +142,10 @@ struct Deck {
 //: Create a protocol for a `CardGame`. It should have two requirements:
 //: * a gettable `deck` property
 //: * a `play()` method
+protocol CardGame {
+    var deck: Deck { get }
+    func play()
+}
 
 
 
@@ -126,7 +154,10 @@ struct Deck {
 //: Create a protocol for tracking a card game as a delegate called `CardGameDelegate`. It should have two functional requirements:
 //: * a function called `gameDidStart` that takes a `CardGame` as an argument
 //: * a function with the following signature: `game(player1DidDraw card1: Card, player2DidDraw card2: Card)`
-
+protocol CardGameDelegate {
+    func gameDidStart(_ game: CardGame)
+    func game(player1DidDraw card1: Card, player2DidDraw card2: Card)
+}
 
 
 
