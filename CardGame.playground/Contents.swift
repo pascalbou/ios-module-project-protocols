@@ -70,6 +70,8 @@ struct Card: CustomStringConvertible, Comparable {
     static func < (lhs: Card, rhs: Card) -> Bool {
         if lhs.rank < rhs.rank {
             return true
+        } else if lhs.rank > rhs.rank {
+            return false
         } else {
             switch lhs.suit.rawValue {
             case "clubs":
@@ -143,8 +145,12 @@ class HighLow: CardGame {
     var delegate: CardGameDelegate?
     
     func play() {
+        delegate?.gameDidStart(self)
+        
         let card1 = deck.drawCard()
         let card2 = deck.drawCard()
+        
+        delegate?.game(player1DidDraw: card1, player2DidDraw: card2)
         
         if card1 == card2 {
             print("Round ends in a tie with a \(card1.description)")
@@ -177,4 +183,8 @@ let tracker = CardGameTracker()
 let game = HighLow()
 
 game.delegate = tracker
+game.play()
+game.play()
+game.play()
+game.play()
 game.play()
