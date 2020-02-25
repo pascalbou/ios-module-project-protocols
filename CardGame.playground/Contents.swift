@@ -33,13 +33,12 @@ enum Rank: Int, CustomStringConvertible, CaseIterable, Comparable {
         return lhs.rawValue == rhs.rawValue
     }
     
-    static var allRanks: [Rank] {
-        return [.ace, .two, .three, .four, .five, .six, .seven, .eight, .nine, .ten, .jack, .queen, .king]
-    }
+//    static var allRanks: [Rank] {
+//        return [.ace, .two, .three, .four, .five, .six, .seven, .eight, .nine, .ten, .jack, .queen, .king]
+//    }
 }
 
 
-print("works")
 
 //: ## Step 2
 //: Once you've defined the enum as described above, take a look at this built-in protocol, [CustomStringConvertible](https://developer.apple.com/documentation/swift/customstringconvertible) and make the enum conform to that protocol. Make the face cards return a string of their name, and for the numbered cards, simply have it return that number as a string.
@@ -55,9 +54,9 @@ enum Suit: String, CaseIterable {
     case spades = "spades"
     case clubs = "clubs"
     
-    static var allSuits: [Suit] {
-        return [.spades, .hearts, .diamonds, .clubs]
-    }
+//    static var allSuits: [Suit] {
+//        return [.spades, .hearts, .diamonds, .clubs]
+//    }
 }
 
 
@@ -125,21 +124,21 @@ struct Card: CustomStringConvertible, Comparable {
 struct Deck {
     var cards: [Card] = []
     
-//    init() {
-//        for singleRank in Rank.allCases {
-//            for singleSuit in Suit.allCases {
-//                self.cards.append(Card(rank: singleRank, suit: singleSuit))
-//            }
-//        }
-//    }
-    
     init() {
-        for singleRank in Rank.allRanks {
-            for singleSuit in Suit.allSuits {
-                cards.append(Card(rank: singleRank, suit: singleSuit))
+        for singleRank in Rank.allCases {
+            for singleSuit in Suit.allCases {
+                self.cards.append(Card(rank: singleRank, suit: singleSuit))
             }
         }
     }
+    
+//    init() {
+//        for singleRank in Rank.allRanks {
+//            for singleSuit in Suit.allSuits {
+//                cards.append(Card(rank: singleRank, suit: singleSuit))
+//            }
+//        }
+//    }
     
     func drawCard() -> Card {
         return cards[Int.random(in: 0...51)]
@@ -147,8 +146,6 @@ struct Deck {
     
 }
 
-let td = Deck()
-let tc = td.drawCard()
 //: ## Step 7
 //: In the rank enum, add a static computed property that returns all the ranks in an array. Name this property `allRanks`. This is needed because you can't iterate over all cases from an enum automatically.
 
@@ -266,7 +263,19 @@ class HighLow: CardGame {
 //: ## Step 20
 //: Create a class called `CardGameTracker` that conforms to the `CardGameDelegate` protocol. Implement the two required functions: `gameDidStart` and `game(player1DidDraw:player2DidDraw)`. Model `gameDidStart` after the same method in the guided project from today. As for the other method, have it print a message like the following:
 //: * "Player 1 drew a 6 of hearts, player 2 drew a jack of spades."
-
+class CardGameTracker: CardGameDelegate {
+    func gameDidStart(_ game: CardGame) {
+        if game is HighLow {
+            print("Started a new game of High Low")
+        }
+    }
+    
+    func game(player1DidDraw card1: Card, player2DidDraw card2: Card) {
+        print("Player 1 drew a \(card1.description), player 2 drew a \(card2.description)")
+    }
+    
+    
+}
 
 
 //: Step 21
@@ -277,4 +286,8 @@ class HighLow: CardGame {
 //: Player 1 drew a 2 of diamonds, player 2 drew a ace of diamonds.
 //: Player 1 wins with 2 of diamonds.
 //: ```
+let tracker = CardGameTracker()
+let game = HighLow()
 
+game.delegate = tracker
+game.play()
