@@ -2,7 +2,7 @@ import Foundation
 
 //: ## Step 1
 //: Create an enumeration for the value of a playing card. The values are: `ace`, `two`, `three`, `four`, `five`, `six`, `seven`, `eight`, `nine`, `ten`, `jack`, `queen`, and `king`. Set the raw type of the enum to `Int` and assign the ace a value of `1`.
-enum Rank: Int {
+enum Rank: Int, CustomStringConvertible, CaseIterable, Comparable {
     case ace = 1
     case two = 2
     case three = 3
@@ -17,15 +17,6 @@ enum Rank: Int {
     case queen = 12
     case king = 13
     
-//    static let allRanks = []
-}
-
-
-
-
-//: ## Step 2
-//: Once you've defined the enum as described above, take a look at this built-in protocol, [CustomStringConvertible](https://developer.apple.com/documentation/swift/customstringconvertible) and make the enum conform to that protocol. Make the face cards return a string of their name, and for the numbered cards, simply have it return that number as a string.
-extension Rank: CustomStringConvertible {
     var description: String {
         if self.rawValue == 1 || self.rawValue > 10 {
             return "\(self)"
@@ -34,25 +25,46 @@ extension Rank: CustomStringConvertible {
         }
     }
     
+    static func < (lhs: Rank, rhs: Rank) -> Bool {
+        return lhs.rawValue < rhs.rawValue
+    }
     
+    static func == (lhs: Rank, rhs: Rank) -> Bool {
+        return lhs.rawValue == rhs.rawValue
+    }
+    
+    static var allRanks: [Rank] {
+        return [.ace, .two, .three, .four, .five, .six, .seven, .eight, .nine, .ten, .jack, .queen, .king]
+    }
 }
+
+
+print("works")
+
+//: ## Step 2
+//: Once you've defined the enum as described above, take a look at this built-in protocol, [CustomStringConvertible](https://developer.apple.com/documentation/swift/customstringconvertible) and make the enum conform to that protocol. Make the face cards return a string of their name, and for the numbered cards, simply have it return that number as a string.
+
 
 
 
 //: ## Step 3
 //: Create an enum for the suit of a playing card. The values are `hearts`, `diamonds`, `spades`, and `clubs`. Use a raw type of `String` for this enum (this will allow us to get a string version of the enum cases for free, no use of `CustomStringConvertible` required).
-enum Suit: String {
+enum Suit: String, CaseIterable {
     case hearts = "hearts"
     case diamonds = "diamonds"
     case spades = "spades"
     case clubs = "clubs"
+    
+    static var allSuits: [Suit] {
+        return [.spades, .hearts, .diamonds, .clubs]
+    }
 }
 
 
 
 //: ## Step 4
 //: Using the two enums above, create a `struct` called `Card` to model a single playing card. It should have constant properties for each constituent piece (one for suit and one for rank).
-struct Card {
+struct Card: CustomStringConvertible, Comparable {
     var rank: Rank
     var suit: Suit
     
@@ -60,19 +72,52 @@ struct Card {
         self.rank = rank
         self.suit = suit
     }
+    
+    var description: String {
+        return "\(self.rank) of \(self.suit)"
+    }
+    
+    static func < (lhs: Card, rhs: Card) -> Bool {
+        if lhs.rank < rhs.rank {
+            return true
+        } else {
+            switch lhs.suit.rawValue {
+            case "clubs":
+                if rhs.suit.rawValue == "clubs" {
+                    return false
+                } else {
+                    return true
+                }
+            case "diamonds":
+                if rhs.suit.rawValue == "clubs" || rhs.suit.rawValue == "diamonds" {
+                    return false
+                } else {
+                    return true
+                }
+            case "hearts":
+                if rhs.suit.rawValue == "spades" {
+                    return true
+                } else {
+                    return false
+                }
+            case "spades":
+                return false
+            default:
+                return false
+            }
+        }
+    }
+    
+    static func == (lhs: Card, rhs: Card) -> Bool {
+        return lhs.rank == rhs.rank && lhs.suit.rawValue == rhs.suit.rawValue
+    }
 }
 
 
 
 //: ## Step 5
 //: Make the card also conform to `CustomStringConvertible`. When turned into a string, a card's value should look something like this, "ace of spades", or "3 of diamonds".
-extension Card: CustomStringConvertible {
-    var description: String {
-        return "\(self.rank) of \(self.suit)"
-    }
-    
-    
-}
+
 
 
 //: ## Step 6
@@ -80,10 +125,18 @@ extension Card: CustomStringConvertible {
 struct Deck {
     var cards: [Card] = []
     
+//    init() {
+//        for singleRank in Rank.allCases {
+//            for singleSuit in Suit.allCases {
+//                self.cards.append(Card(rank: singleRank, suit: singleSuit))
+//            }
+//        }
+//    }
+    
     init() {
-        for singleRank in Rank.allCases {
-            for singleSuit in Suit.allCases {
-                self.cards.append(Card(rank: singleRank, suit: singleSuit))
+        for singleRank in Rank.allRanks {
+            for singleSuit in Suit.allSuits {
+                cards.append(Card(rank: singleRank, suit: singleSuit))
             }
         }
     }
@@ -94,22 +147,13 @@ struct Deck {
     
 }
 
-
-
-
+let td = Deck()
+let tc = td.drawCard()
 //: ## Step 7
 //: In the rank enum, add a static computed property that returns all the ranks in an array. Name this property `allRanks`. This is needed because you can't iterate over all cases from an enum automatically.
-extension Rank: CaseIterable {
-    
-}
-
-
 
 //: ## Step 8
 //: In the suit enum, add a static computed property that returns all the suits in an array. Name this property `allSuits`.
-extension Suit: CaseIterable {
-    
-}
 
 
 
@@ -168,7 +212,16 @@ class HighLow: CardGame {
     var delegate: CardGameDelegate?
     
     func play() {
-        <#code#>
+        let card1 = deck.drawCard()
+        let card2 = deck.drawCard()
+        
+        if card1 == card2 {
+            print("Round ends in a tie with a \(card1.description)")
+        } else if card1 < card2 {
+            print("Player 2 wins with a \(card2.description)")
+        } else {
+            print("Player 1 wins with a \(card1.description)")
+        }
     }
     
 }
@@ -189,16 +242,7 @@ class HighLow: CardGame {
 
 //: ## Step 17
 //: Make the `Rank` type conform to the `Comparable` protocol. Implement the `<` and `==` functions such that they compare the `rawValue` of the `lhs` and `rhs` arguments passed in. This will allow us to compare two rank values with each other and determine whether they are equal, or if not, which one is larger.
-extension Rank: Comparable {
-    static func < (lhs: Rank, rhs: Rank) -> Bool {
-        return lhs.rawValue < rhs.rawValue
-    }
-    
-    static func == (lhs: Rank, rhs: Rank) -> Bool {
-        return lhs.rawValue == rhs.rawValue
-    }
-    
-}
+
 
 
 
@@ -206,43 +250,7 @@ extension Rank: Comparable {
 
 //: Step 18
 //: Make the `Card` type conform to the `Comparable` protocol. Implement the `<` and `==` methods such that they compare the ranks of the `lhs` and `rhs` arguments passed in. For the `==` method, compare **both** the rank and the suit.
-extension Card: Comparable {
-    static func < (lhs: Card, rhs: Card) -> Bool {
-        if lhs.rank < rhs.rank {
-            return true
-        } else {
-            switch lhs.suit.rawValue {
-            case "clubs":
-                if rhs.suit.rawValue == "clubs" {
-                    return false
-                } else {
-                    return true
-                }
-            case "diamonds":
-                if rhs.suit.rawValue == "clubs" || rhs.suit.rawValue == "diamonds" {
-                    return false
-                } else {
-                    return true
-                }
-            case "hearts":
-                if rhs.suit.rawValue == "spades" {
-                    return true
-                } else {
-                    return false
-                }
-            case "spades":
-                return false
-            default:
-                return false
-            }
-        }
-    }
-    
-    static func == (lhs: Card, rhs: Card) -> Bool {
-        return lhs.rank == rhs.rank && lhs.suit.rawValue == rhs.suit.rawValue
-    }
 
-}
 
 
 
@@ -269,5 +277,4 @@ extension Card: Comparable {
 //: Player 1 drew a 2 of diamonds, player 2 drew a ace of diamonds.
 //: Player 1 wins with 2 of diamonds.
 //: ```
-
 
